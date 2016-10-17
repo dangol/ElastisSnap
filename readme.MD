@@ -7,5 +7,7 @@ Before starting this script you must ensure that the repo is setup and the es ho
 
 Depends on having 
 jq installed from https://stedolan.github.io/jq/
+
 http://tech.rhealitycheck.com/elasticsearch-snapshots-and-restore-on-aws-s3/
+
 https://github.com/elastic/elasticsearch-cloud-aws
