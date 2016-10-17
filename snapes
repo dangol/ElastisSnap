@@ -1,0 +1,45 @@
+#!/bin/bash
+# revision 1
+# by Dan Goldberg dan@madjic.net
+# Rolling Snapshots of Elasticsearch
+# Requires AWS role configuration if using S3 and EC2
+
+# Makes a rolling set of snapshots
+
+#Initialize Variables
+# Set the number of snapshots to keep
+ROLL=2
+REPO=scaryhair12
+#set a name for the new snapshot
+NAME=`date +%F-%R`
+#Get a list of current snapshots
+SNAPS=`curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|{snapshot}|.snapshot'| sed -e 's/^"//' -e 's/"$//'`
+#Count existing snapshots
+COUNT=`for IT in $SNAPS; do echo $IT;done | wc -l`
+#declare functions:
+
+# delete a snapshot
+function DELETESNAP {
+    #for IT in $SNAPS; do curl -s -XDELETE "http://localhost:9200/_snapshot/$REPO/$IT";done
+    curl -s -XDELETE "http://localhost:9200/_snapshot/$REPO/$IT"
+}
+
+# create a snapshot
+function CREATESNAP {
+    curl -XPUT "http://localhost:9200/_snapshot/$REPO/snap_$NAME"
+}
+
+# get snapshot statuses (not used)
+function STATUSSNAP {
+    curl -XGET "http://localhost:9200/_snapshot/$REPO/snap_$NAME"
+}
+#end function declarations
+
+CREATESNAP
+if [ $COUNT > $ROLL  ]; then
+echo && echo $COUNT
+IFS=' ' read -a snaplist <<< $SNAPS
+IT=${snaplist[0]}
+echo Deleting Snapshot: $IT
+(sleep 30; DELETESNAP)
+fi
