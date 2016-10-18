@@ -36,7 +36,7 @@ function STATUSSNAP {
 #end function declarations
 
 CREATESNAP
-if [ $COUNT > $ROLL  ]; then
+if [ "$COUNT" -gt "$ROLL"  ]; then
 echo && echo $COUNT
 IFS=' ' read -a snaplist <<< $SNAPS
 IT=${snaplist[0]}
