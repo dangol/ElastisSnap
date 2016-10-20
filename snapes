@@ -16,6 +16,18 @@ NAME=`date +%F-%R`
 SNAPS=`curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|{snapshot}|.snapshot'| sed -e 's/^"//' -e 's/"$//'`
 #Count existing snapshots
 COUNT=`for IT in $SNAPS; do echo $IT;done | wc -l`
+if [ $1 == FULLSTATUS ]; then
+curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|.snapshot + ", "  + .state,  .indices'| sed -e 's/^"//' -e 's/"$//'
+exit
+fi
+if [ $1 == STATUS ]; then
+echo "$SNAPS"
+exit
+fi
+if [ $1 == HELP ]; then
+echo use FULLSTATUS for a complete snap shot status, of STATUS for a list of snapshots
+exit
+fi
 #declare functions:
 
 # delete a snapshot
@@ -29,9 +41,16 @@ function CREATESNAP {
     curl -XPUT "http://localhost:9200/_snapshot/$REPO/snap_$NAME"
 }
 
-# get snapshot statuses (not used)
+# get snapshot statuses
 function STATUSSNAP {
-    curl -XGET "http://localhost:9200/_snapshot/$REPO/snap_$NAME"
+    echo $SNAPS
+	exit
+}
+
+function FULLSTATUSSNAP {
+FULLSNAPS=`curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|.snapshot + ", "  + .state,  .indices'| sed -e 's/^"//' -e 's/"$//'`
+echo $FULLSNAPS
+exit
 }
 #end function declarations
 
