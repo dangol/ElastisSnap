@@ -15,7 +15,7 @@ NAME=`date +%F-%R`
 #Get a list of current snapshots
 SNAPS=`curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|{snapshot}|.snapshot'| sed -e 's/^"//' -e 's/"$//'`
 #Count existing snapshots
-COUNT=`for IT in $SNAPS; do echo $IT;done | wc -l`
+COUNT=`echo "$SNAPS" | wc -l`
 if [ $1 == FULLSTATUS ]; then
 curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|.snapshot + ", "  + .state,  .indices'| sed -e 's/^"//' -e 's/"$//'
 exit
