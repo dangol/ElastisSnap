@@ -45,19 +45,20 @@ exit
 
 case "$1" in
     'help') echo "Usage: FULLSTATUS for a complete snapshot status, or STATUS for a list of snapshots, no parameters creates a snapshot"
-        exit
-        ;;
-  STATUS) 
-        ;;
+       exit
+       ;;
+  STATUS) STATUSSNAP
+       ;;
   FULLSTATUS) curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|.snapshot + ", "  + .state,  .indices'| sed -e 's/^"//' -e 's/"$//'
-        exit
-        ;;      
+       exit
+       ;;      
    '') CREATESNAP
-        if [ "$COUNT" -gt "$ROLL"  ]; then
-        echo && echo $COUNT
-        IFS=' ' read -a snaplist <<< $SNAPS
-        IT=${snaplist[0]}
-        echo Deleting Snapshot: $IT
-        (sleep 15; DELETESNAP)
-        fi
-        ;;
+       if [ "$COUNT" -gt "$ROLL"  ]; then
+       echo && echo $COUNT
+       IFS=' ' read -a snaplist <<< $SNAPS
+       IT=${snaplist[0]}
+       echo Deleting Snapshot: $IT
+       (sleep 15; DELETESNAP)
+       fi
+       ;;
+esac
