@@ -27,7 +27,7 @@ function DELETESNAP {
 
 # create a snapshot
 function CREATESNAP {
-    curl -XPUT "http://localhost:9200/_snapshot/$REPO/$hostname_$NAME"
+    curl -XPUT "http://localhost:9200/_snapshot/$REPO/`hostname`_$NAME"
 }
 
 # get snapshot statuses
