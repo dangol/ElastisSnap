@@ -5,10 +5,10 @@
 # Requires AWS role configuration if using S3 and EC2
 
 # Makes a rolling set of snapshots
-
+# Put in crontab to run
 #Initialize Variables
 # Set the number of snapshots to keep
-ROLL=2
+ROLL=4
 REPO=scaryhair12
 #set a name for the new snapshot
 NAME=`date +%F-%R`
@@ -16,18 +16,7 @@ NAME=`date +%F-%R`
 SNAPS=`curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|{snapshot}|.snapshot'| sed -e 's/^"//' -e 's/"$//'`
 #Count existing snapshots
 COUNT=`echo "$SNAPS" | wc -l`
-if [ $1 == FULLSTATUS ]; then
-curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|.snapshot + ", "  + .state,  .indices'| sed -e 's/^"//' -e 's/"$//'
-exit
-fi
-if [ $1 == STATUS ]; then
-echo "$SNAPS"
-exit
-fi
-if [ $1 == HELP ]; then
-echo use FULLSTATUS for a complete snap shot status, of STATUS for a list of snapshots
-exit
-fi
+
 #declare functions:
 
 # delete a snapshot
@@ -38,13 +27,13 @@ function DELETESNAP {
 
 # create a snapshot
 function CREATESNAP {
-    curl -XPUT "http://localhost:9200/_snapshot/$REPO/snap_$NAME"
+    curl -XPUT "http://localhost:9200/_snapshot/$REPO/$hostname_$NAME"
 }
 
 # get snapshot statuses
 function STATUSSNAP {
     echo $SNAPS
-	exit
+    exit
 }
 
 function FULLSTATUSSNAP {
@@ -54,11 +43,21 @@ exit
 }
 #end function declarations
 
-CREATESNAP
-if [ "$COUNT" -gt "$ROLL"  ]; then
-echo && echo $COUNT
-IFS=' ' read -a snaplist <<< $SNAPS
-IT=${snaplist[0]}
-echo Deleting Snapshot: $IT
-(sleep 30; DELETESNAP)
-fi
+case "$1" in
+    'help') echo "Usage: FULLSTATUS for a complete snapshot status, or STATUS for a list of snapshots, no parameters creates a snapshot"
+        exit
+        ;;
+  STATUS) 
+        ;;
+  FULLSTATUS) curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|.snapshot + ", "  + .state,  .indices'| sed -e 's/^"//' -e 's/"$//'
+        exit
+        ;;      
+   '') CREATESNAP
+        if [ "$COUNT" -gt "$ROLL"  ]; then
+        echo && echo $COUNT
+        IFS=' ' read -a snaplist <<< $SNAPS
+        IT=${snaplist[0]}
+        echo Deleting Snapshot: $IT
+        (sleep 15; DELETESNAP)
+        fi
+        ;;
