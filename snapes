@@ -21,8 +21,7 @@ COUNT=`echo "$SNAPS" | wc -l`
 
 # delete a snapshot
 function DELETESNAP {
-    #for IT in $SNAPS; do curl -s -XDELETE "http://localhost:9200/_snapshot/$REPO/$IT";done
-    curl -s -XDELETE "http://localhost:9200/_snapshot/$REPO/$IT"
+    curl -s -XDELETE "http://localhost:9200/_snapshot/$REPO/$1"
 }
 
 # create a snapshot
@@ -32,7 +31,7 @@ function CREATESNAP {
 
 # get snapshot statuses
 function STATUSSNAP {
-    echo "$SNAPS"
+    curl -s -XGET "http://localhost:9200/_snapshot/scaryhair12/_all?pretty=true" | jq '.snapshots[]|{snapshot}|.snapshot'| sed -e 's/^"//' -e 's/"$//'
     exit
 }
 
@@ -58,7 +57,7 @@ case "$1" in
        IFS=' ' read -a snaplist <<< $SNAPS
        IT=${snaplist[0]}
        echo Deleting Snapshot: $IT
-       (sleep 15; DELETESNAP)
+       (sleep 15; DELETESNAP $IT)
        fi
        ;;
 esac

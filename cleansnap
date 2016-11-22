@@ -1,0 +1,8 @@
+#!/bin/bash
+COUNTER=`/usr/local/bin/snapes STATUS | wc -l`
+while [  $COUNTER -gt 4 ]; do
+    THIS=`/usr/local/bin/snapes STATUS| head -n 1`
+    echo "Deleting $THIS, The Counter is at $COUNTER"
+    curl -XDELETE "http://localhost:9200/_snapshot/scaryhair12/$THIS" && echo
+ let COUNTER=COUNTER-1
+done
